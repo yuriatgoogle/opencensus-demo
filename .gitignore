@@ -59,3 +59,6 @@ typings/
 
 # next.js build output
 .next
+
+scratch
+trace-service-account.json
