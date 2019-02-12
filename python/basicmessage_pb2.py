@@ -19,21 +19,21 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='basicMessage',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x12\x62\x61sicmessage.proto\x12\x0c\x62\x61sicMessage\"\x1e\n\x0e\x62\x61\x63kendRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x1f\n\x0c\x62\x61\x63kendReply\x12\x0f\n\x07message\x18\x01 \x01(\t2T\n\x07\x62\x61\x63kend\x12I\n\x0bsendMessage\x12\x1c.basicMessage.backendRequest\x1a\x1a.basicMessage.backendReply\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x12\x62\x61sicmessage.proto\x12\x0c\x62\x61sicMessage\"\x1d\n\ncommString\x12\x0f\n\x07payload\x18\x01 \x01(\t2N\n\x07\x62\x61\x63kend\x12\x43\n\x0bsendMessage\x12\x18.basicMessage.commString\x1a\x18.basicMessage.commString\"\x00\x62\x06proto3')
 )
 
 
 
 
-_BACKENDREQUEST = _descriptor.Descriptor(
-  name='backendRequest',
-  full_name='basicMessage.backendRequest',
+_COMMSTRING = _descriptor.Descriptor(
+  name='commString',
+  full_name='basicMessage.commString',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='basicMessage.backendRequest.name', index=0,
+      name='payload', full_name='basicMessage.commString.payload', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -52,57 +52,18 @@ _BACKENDREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=36,
-  serialized_end=66,
+  serialized_end=65,
 )
 
-
-_BACKENDREPLY = _descriptor.Descriptor(
-  name='backendReply',
-  full_name='basicMessage.backendReply',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='message', full_name='basicMessage.backendReply.message', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=68,
-  serialized_end=99,
-)
-
-DESCRIPTOR.message_types_by_name['backendRequest'] = _BACKENDREQUEST
-DESCRIPTOR.message_types_by_name['backendReply'] = _BACKENDREPLY
+DESCRIPTOR.message_types_by_name['commString'] = _COMMSTRING
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-backendRequest = _reflection.GeneratedProtocolMessageType('backendRequest', (_message.Message,), dict(
-  DESCRIPTOR = _BACKENDREQUEST,
+commString = _reflection.GeneratedProtocolMessageType('commString', (_message.Message,), dict(
+  DESCRIPTOR = _COMMSTRING,
   __module__ = 'basicmessage_pb2'
-  # @@protoc_insertion_point(class_scope:basicMessage.backendRequest)
+  # @@protoc_insertion_point(class_scope:basicMessage.commString)
   ))
-_sym_db.RegisterMessage(backendRequest)
-
-backendReply = _reflection.GeneratedProtocolMessageType('backendReply', (_message.Message,), dict(
-  DESCRIPTOR = _BACKENDREPLY,
-  __module__ = 'basicmessage_pb2'
-  # @@protoc_insertion_point(class_scope:basicMessage.backendReply)
-  ))
-_sym_db.RegisterMessage(backendReply)
+_sym_db.RegisterMessage(commString)
 
 
 
@@ -112,16 +73,16 @@ _BACKEND = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=101,
-  serialized_end=185,
+  serialized_start=67,
+  serialized_end=145,
   methods=[
   _descriptor.MethodDescriptor(
     name='sendMessage',
     full_name='basicMessage.backend.sendMessage',
     index=0,
     containing_service=None,
-    input_type=_BACKENDREQUEST,
-    output_type=_BACKENDREPLY,
+    input_type=_COMMSTRING,
+    output_type=_COMMSTRING,
     serialized_options=None,
   ),
 ])

@@ -16,12 +16,8 @@ class backendServer(basicmessage_pb2_grpc.backendServicer):
         """
         Implementation of the rpc sendMessage declared in the proto
         file above.
-        """
-        # get the string from the incoming request
-        input = request.backendRequest
-        result = input
-  
-        return basicmessage_pb2.backendReply(**input)
+        """ 
+        return basicmessage_pb2.backendReply(request.backendRequest)
  
     def start_server(self):
         """

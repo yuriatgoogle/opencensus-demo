@@ -16,8 +16,8 @@ class backendStub(object):
     """
     self.sendMessage = channel.unary_unary(
         '/basicMessage.backend/sendMessage',
-        request_serializer=basicmessage__pb2.backendRequest.SerializeToString,
-        response_deserializer=basicmessage__pb2.backendReply.FromString,
+        request_serializer=basicmessage__pb2.commString.SerializeToString,
+        response_deserializer=basicmessage__pb2.commString.FromString,
         )
 
 
@@ -37,8 +37,8 @@ def add_backendServicer_to_server(servicer, server):
   rpc_method_handlers = {
       'sendMessage': grpc.unary_unary_rpc_method_handler(
           servicer.sendMessage,
-          request_deserializer=basicmessage__pb2.backendRequest.FromString,
-          response_serializer=basicmessage__pb2.backendReply.SerializeToString,
+          request_deserializer=basicmessage__pb2.commString.FromString,
+          response_serializer=basicmessage__pb2.commString.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

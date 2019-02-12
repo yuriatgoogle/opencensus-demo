@@ -19,15 +19,9 @@ package basicMessage;
 // The greeting service definition.
 service backend {
   // Sends a greeting
-  rpc sendMessage (backendRequest) returns (backendReply) {}
+  rpc sendMessage (commString) returns (commString) {}
 }
 
-// The request message containing the user's name.
-message backendRequest {
-  string name = 1;
-}
-
-// The response message containing the greetings
-message backendReply {
-  string message = 1;
+message commString {
+  string payload = 1;
 }
