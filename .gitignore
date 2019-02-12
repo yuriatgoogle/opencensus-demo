@@ -63,4 +63,4 @@ typings/
 scratch
 trace-service-account.json
 venv
-
+__pycache__
