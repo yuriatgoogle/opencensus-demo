@@ -5,8 +5,8 @@ import grpcDemo_pb2 as grpcDemo__pb2
 
 
 class grpcBackendStub(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """service
+  """
 
   def __init__(self, channel):
     """Constructor.
@@ -22,8 +22,8 @@ class grpcBackendStub(object):
 
 
 class grpcBackendServicer(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """service
+  """
 
   def returnValue(self, request, context):
     # missing associated documentation comment in .proto file
