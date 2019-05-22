@@ -29,7 +29,7 @@ service backend {
 
 // The request message containing the user's name.
 message backendRequest {
-  string name = 1;
+  string message = 1;
 }
 
 // The response message containing the greetings
