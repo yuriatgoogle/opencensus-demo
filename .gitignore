@@ -65,3 +65,4 @@ trace-service-account.json
 venv
 __pycache__
 opencensus-demo
+.token

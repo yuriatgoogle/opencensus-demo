@@ -14,29 +14,23 @@
 #    limitations under the License.
 */
 
-// grpc stuff
+// set up grpc
 var protobuf = require('protobufs');
-var PROTO_PATH = __dirname + '/helloworld.proto'
-console.log("proto path: " + PROTO_PATH)
+var PROTO_PATH = __dirname + '/../proto/helloworld.proto'
 var grpc = require('grpc');
 var hello_proto = grpc.load(PROTO_PATH).helloworld;
-console.log("hello_proto: " + hello_proto)
-
 
 const express = require('express');
 const app = express();
 
+// set up tracing
 var tracing = require('@opencensus/nodejs');
 var stackdriver = require('@opencensus/exporter-stackdriver');
-var projectID = 'ygrinshteyn-sandbox';
+var projectID = 'thegrinch-project';
 
-// create Stackdriver exporter
+// create and start Stackdriver exporter
 var exporter = new stackdriver.StackdriverTraceExporter({projectId: projectID});
-
-// start Stackdriver exporter
 tracing.registerExporter(exporter).start();
-
-// start tracing and set sampling rate
 const tracer = tracing.start({samplingRate: 1}).tracer;
 
 

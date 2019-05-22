@@ -16,32 +16,47 @@
  *
  */
 
-var PROTO_PATH = __dirname + '/helloworld.proto'
-
+var PROTO_PATH = __dirname + '/../proto/helloworld.proto'
 var grpc = require('grpc');
 var hello_proto = grpc.load(PROTO_PATH).helloworld;
-var sleep = require('sleep');
+const request = require('request');
 
-/** 
- * implements a random integer generator
- */
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
+// set up tracing
+var tracing = require('@opencensus/nodejs');
+var stackdriver = require('@opencensus/exporter-stackdriver');
+var projectID = 'thegrinch-project'; //TODO - convert to env variable
+
+// create and start Stackdriver exporter
+var exporter = new stackdriver.StackdriverTraceExporter({projectId: projectID});
+tracing.registerExporter(exporter).start();
+const tracer = tracing.start({samplingRate: 1}).tracer;
+ 
+
+
+// implements an outbound HTTP call
+function callOutbound (url) {
+  request(url, function (error, response, body) {
+    console.log('error:', error); 
+    console.log('statusCode:', response && response.statusCode); 
+  });
 }
 
-/**
- * Implements the SayHello RPC method.
- */
+// Implements the SayHello RPC method - with tracing
 function sayHello(call, callback) {
-  var sleepDelay = getRandomInt(5);
-  sleep.sleep(sleepDelay);
-  callback(null, {message: 'Slept for  ' + sleepDelay + ' seconds'});
+  tracer.startRootSpan({name: 'backendMain'}, rootSpan => {
+    // code to be traced goes in here:
+    rootSpan.addAnnotation('main span');
+    const childSpan = tracer.startChildSpan('google_call');
+    childSpan.start();
+    callOutbound('https://www.google.com');
+    callback(null, {message: 'Google.com loaded in backend'});
+    childSpan.end();
+    rootSpan.end();
+  });
 }
 
-/**
- * Starts an RPC server that receives requests for the Greeter service at the
- * sample server port
- */
+
+ // Start RPC server
 function main() {
   var server = new grpc.Server();
   server.addService(hello_proto.Greeter.service, {sayHello: sayHello});
