@@ -7,11 +7,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
-	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/plugin/ochttp/propagation/b3"
 	"go.opencensus.io/trace"
 )
 
@@ -42,23 +39,25 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	handler = &ochttp.Handler{
-		Handler:     handler,
-		Propagation: &b3.HTTPFormat{}}
-
-	exporter, err := stackdriver.NewExporter(stackdriver.Options{
-		ProjectID:            projectID,
-		BundleDelayThreshold: time.Second / 10,
-		BundleCountThreshold: 10})
+	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID})
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 	trace.RegisterExporter(exporter)
-	trace.SetDefaultSampler(trace.AlwaysSample())
+
+	// trace.SetDefaultSampler(trace.AlwaysSample())
+
+	// // Automatically add a Stackdriver trace header to outgoing requests:
+	// client := &http.Client{
+	// 	Transport: &ochttp.Transport{
+	// 		Propagation: &propagation.HTTPFormat{},
+	// 	},
+	// }
+	// _ = client // use client
 
 	_, span := trace.StartSpan(context.Background(), "main")
 	defer span.End()
 
 	http.HandleFunc("/", mainHandler)
-	log.Fatal(http.ListenAndServe(":8080", handler))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
