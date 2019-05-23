@@ -37,8 +37,9 @@ func callGoogle() string {
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
-	// _, span := trace.StartSpan(context.Background(), "main")
-	// defer span.End()
+	ctx := r.Context()
+	_, span := trace.StartSpan(ctx, "call Google")
+	defer span.End()
 	returnCode := callGoogle()
 	fmt.Fprintf(w, returnCode)
 }

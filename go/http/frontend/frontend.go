@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	trace "go.opencensus.io/trace"
@@ -25,18 +25,40 @@ var (
 func callBackend(ctx context.Context) string {
 	_, span := trace.StartSpan(ctx, "backendCall")
 	defer span.End()
-	resp, err := http.Get("http://localhost:8080")
+
+	// make backend call with context
+	req, err := http.NewRequest("GET", "http://localhost:8080", nil)
 	if err != nil {
-		log.Fatal("could not fetch Google")
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal("could not read response from Google")
-		log.Fatal(body)
+		log.Fatalf("%v", err)
 	}
 
-	return strconv.Itoa(resp.StatusCode)
+	ctx, cancel := context.WithTimeout(req.Context(), 1000*time.Millisecond)
+	defer cancel()
+
+	req = req.WithContext(ctx)
+
+	client := http.DefaultClient
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	fmt.Printf("%v\n", res.StatusCode)
+
+	/*
+		resp, err := http.Get("http://localhost:8080")
+		if err != nil {
+			log.Fatal("could not fetch Google")
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal("could not read response from Google")
+			log.Fatal(body)
+		}
+	*/
+
+	return strconv.Itoa(res.StatusCode)
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
