@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
-	"go.opencensus.io/trace"
+	trace "go.opencensus.io/trace"
 )
 
 var (
@@ -39,7 +39,8 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID})
+	exporter, err := stackdriver.NewExporter(stackdriver.Options{
+		ProjectID: projectID, Location: "us-west1-a"})
 	if err != nil {
 		log.Fatal(err)
 	}
