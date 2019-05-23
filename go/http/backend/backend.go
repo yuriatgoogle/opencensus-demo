@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,10 +9,15 @@ import (
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	trace "go.opencensus.io/trace"
+
+	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/plugin/ochttp/propagation/b3"
+
+	"github.com/gorilla/mux"
 )
 
 var (
-	projectID = "thegrinch=project"
+	projectID = "thegrinch-project"
 )
 
 // make an outbound call and
@@ -33,32 +37,31 @@ func callGoogle() string {
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
+	// _, span := trace.StartSpan(context.Background(), "main")
+	// defer span.End()
 	returnCode := callGoogle()
 	fmt.Fprintf(w, returnCode)
 }
 
 func main() {
 
-	exporter, err := stackdriver.NewExporter(stackdriver.Options{
-		ProjectID: projectID, Location: "us-west1-a"})
+	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID, Location: "us-west1-a"})
 	if err != nil {
 		log.Fatal(err)
 	}
 	trace.RegisterExporter(exporter)
+	trace.ApplyConfig(trace.Config{
+		DefaultSampler: trace.AlwaysSample(),
+	})
 
-	// trace.SetDefaultSampler(trace.AlwaysSample())
+	r := mux.NewRouter()
+	r.HandleFunc("/", mainHandler)
+	var handler http.Handler = r
+	// handler = &logHandler{log: log, next: handler}
 
-	// // Automatically add a Stackdriver trace header to outgoing requests:
-	// client := &http.Client{
-	// 	Transport: &ochttp.Transport{
-	// 		Propagation: &propagation.HTTPFormat{},
-	// 	},
-	// }
-	// _ = client // use client
+	handler = &ochttp.Handler{
+		Handler:     handler,
+		Propagation: &b3.HTTPFormat{}}
 
-	_, span := trace.StartSpan(context.Background(), "main")
-	defer span.End()
-
-	http.HandleFunc("/", mainHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
