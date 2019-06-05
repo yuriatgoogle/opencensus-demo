@@ -20,7 +20,7 @@ var (
 	projectID = "thegrinch-project"
 )
 
-// make an outbound call and
+// make an outbound call
 func callGoogle() string {
 	resp, err := http.Get("https://www.google.com")
 	if err != nil {
@@ -37,7 +37,9 @@ func callGoogle() string {
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
+	// get context from incoming request
 	ctx := r.Context()
+	// start span with context
 	_, span := trace.StartSpan(ctx, "call Google")
 	defer span.End()
 	returnCode := callGoogle()
@@ -45,7 +47,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
+	// set up Stackdriver exporter
 	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID, Location: "us-west1-a"})
 	if err != nil {
 		log.Fatal(err)
@@ -55,6 +57,7 @@ func main() {
 		DefaultSampler: trace.AlwaysSample(),
 	})
 
+	// handle incoming request
 	r := mux.NewRouter()
 	r.HandleFunc("/", mainHandler)
 	var handler http.Handler = r

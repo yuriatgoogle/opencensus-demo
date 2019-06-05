@@ -21,9 +21,9 @@ var (
 	projectID = "thegrinch-project"
 )
 
-// make an outbound call and
+// make an outbound call with context
 func callBackend(ctx context.Context) string {
-	_, span := trace.StartSpan(ctx, "backendCall")
+	_, span := trace.StartSpan(ctx, "call to backend")
 	defer span.End()
 
 	// make backend call with context
@@ -45,24 +45,11 @@ func callBackend(ctx context.Context) string {
 
 	fmt.Printf("%v\n", res.StatusCode)
 
-	/*
-		resp, err := http.Get("http://localhost:8080")
-		if err != nil {
-			log.Fatal("could not fetch Google")
-		}
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal("could not read response from Google")
-			log.Fatal(body)
-		}
-	*/
-
 	return strconv.Itoa(res.StatusCode)
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(context.Background(), "root call")
+	ctx, span := trace.StartSpan(context.Background(), "incoming call")
 	defer span.End()
 
 	returnCode := callBackend(ctx)
@@ -70,7 +57,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
+	// set up Stackdriver exporter
 	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID, Location: "us-west1-a"})
 	if err != nil {
 		log.Fatal(err)
@@ -80,11 +67,10 @@ func main() {
 		DefaultSampler: trace.AlwaysSample(),
 	})
 
+	// handle root request
 	r := mux.NewRouter()
 	r.HandleFunc("/", mainHandler)
 	var handler http.Handler = r
-	// handler = &logHandler{log: log, next: handler}
-
 	handler = &ochttp.Handler{
 		Handler:     handler,
 		Propagation: &b3.HTTPFormat{}}
