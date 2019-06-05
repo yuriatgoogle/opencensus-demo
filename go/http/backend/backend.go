@@ -11,7 +11,7 @@ import (
 	trace "go.opencensus.io/trace"
 
 	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/plugin/ochttp/propagation/b3"
+	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
 
 	"github.com/gorilla/mux"
 )
@@ -39,11 +39,14 @@ func callGoogle() string {
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	// get context from incoming request
 	ctx := r.Context()
-	// start span with context
-	_, span := trace.StartSpan(ctx, "call Google")
-	defer span.End()
-	returnCode := callGoogle()
-	fmt.Fprintf(w, returnCode)
+	// get span context from incoming request
+	HTTPFormat := &tracecontext.HTTPFormat{}
+	if spanContext, ok := HTTPFormat.SpanContextFromRequest(r); ok {
+		_, span := trace.StartSpanWithRemoteParent(ctx, "call Google", spanContext)
+		defer span.End()
+		returnCode := callGoogle()
+		fmt.Fprintf(w, returnCode)
+	}
 }
 
 func main() {
@@ -65,7 +68,7 @@ func main() {
 
 	handler = &ochttp.Handler{
 		Handler:     handler,
-		Propagation: &b3.HTTPFormat{}}
+		Propagation: &tracecontext.HTTPFormat{}}
 
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }

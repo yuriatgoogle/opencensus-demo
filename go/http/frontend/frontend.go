@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
+
+	// "cloud.google.com/go/internal/tracecontext"
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	trace "go.opencensus.io/trace"
 
 	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/plugin/ochttp/propagation/b3"
+	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
 
 	"github.com/gorilla/mux"
 )
@@ -21,22 +22,26 @@ var (
 	projectID = "thegrinch-project"
 )
 
-// make an outbound call with context
-func callBackend(ctx context.Context) string {
-	_, span := trace.StartSpan(ctx, "call to backend")
-	defer span.End()
+func mainHandler(w http.ResponseWriter, r *http.Request) {
+	// create root span
+	ctx, rootspan := trace.StartSpan(context.Background(), "incoming call")
+	defer rootspan.End()
 
-	// make backend call with context
+	// create child span for backend call
+	_, childspan := trace.StartSpan(ctx, "call to backend")
+	defer childspan.End()
+
+	// create request for backend call
 	req, err := http.NewRequest("GET", "http://localhost:8080", nil)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-
-	ctx, cancel := context.WithTimeout(req.Context(), 1000*time.Millisecond)
+	childCtx, cancel := context.WithTimeout(req.Context(), 1000*time.Millisecond)
 	defer cancel()
-
-	req = req.WithContext(ctx)
-
+	req = req.WithContext(childCtx)
+	// add span context to backend call and make request
+	format := &tracecontext.HTTPFormat{}
+	format.SpanContextToRequest(rootspan.SpanContext(), req)
 	client := http.DefaultClient
 	res, err := client.Do(req)
 	if err != nil {
@@ -44,16 +49,6 @@ func callBackend(ctx context.Context) string {
 	}
 
 	fmt.Printf("%v\n", res.StatusCode)
-
-	return strconv.Itoa(res.StatusCode)
-}
-
-func mainHandler(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(context.Background(), "incoming call")
-	defer span.End()
-
-	returnCode := callBackend(ctx)
-	fmt.Fprintf(w, returnCode)
 }
 
 func main() {
@@ -73,7 +68,8 @@ func main() {
 	var handler http.Handler = r
 	handler = &ochttp.Handler{
 		Handler:     handler,
-		Propagation: &b3.HTTPFormat{}}
+		Propagation: &tracecontext.HTTPFormat{}}
+	// Propagation: &b3.HTTPFormat{}}
 
 	log.Fatal(http.ListenAndServe(":8081", handler))
 }
