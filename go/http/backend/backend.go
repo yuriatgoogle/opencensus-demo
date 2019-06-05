@@ -20,13 +20,14 @@ import (
 var (
 	projectID = os.Getenv("PROJECT_ID")
 	destURL   = os.Getenv("DESTINATION_URL")
+	location  = os.Getenv("LOCATION")
 )
 
 // make an outbound call
 func callGoogle() string {
 	resp, err := http.Get(destURL)
 	if err != nil {
-		log.Fatal("could not fetch Google")
+		log.Fatal("could not fetch remote endpoint")
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -44,7 +45,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	// get span context from incoming request
 	HTTPFormat := &tracecontext.HTTPFormat{}
 	if spanContext, ok := HTTPFormat.SpanContextFromRequest(r); ok {
-		_, span := trace.StartSpanWithRemoteParent(ctx, "call Google", spanContext)
+		_, span := trace.StartSpanWithRemoteParent(ctx, "call remote endpoint", spanContext)
 		defer span.End()
 		returnCode := callGoogle()
 		fmt.Fprintf(w, returnCode)
@@ -53,7 +54,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// set up Stackdriver exporter
-	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID, Location: "us-west1-a"})
+	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID, Location: location})
 	if err != nil {
 		log.Fatal(err)
 	}

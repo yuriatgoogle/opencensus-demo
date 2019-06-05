@@ -20,6 +20,7 @@ import (
 var (
 	projectID   = os.Getenv("PROJECT_ID")
 	backendAddr = os.Getenv("BACKEND")
+	location    = os.Getenv("LOCATION")
 )
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +55,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// set up Stackdriver exporter
-	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID, Location: "us-west1-a"})
+	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID, Location: location})
 	if err != nil {
 		log.Fatal(err)
 	}
