@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
@@ -17,12 +18,13 @@ import (
 )
 
 var (
-	projectID = "thegrinch-project"
+	projectID = os.Getenv("PROJECT_ID")
+	destURL   = os.Getenv("DESTINATION_URL")
 )
 
 // make an outbound call
 func callGoogle() string {
-	resp, err := http.Get("https://www.google.com")
+	resp, err := http.Get(destURL)
 	if err != nil {
 		log.Fatal("could not fetch Google")
 	}

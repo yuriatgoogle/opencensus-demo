@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
-
-	// "cloud.google.com/go/internal/tracecontext"
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	trace "go.opencensus.io/trace"
@@ -19,7 +18,8 @@ import (
 )
 
 var (
-	projectID = "thegrinch-project"
+	projectID   = os.Getenv("PROJECT_ID")
+	backendAddr = os.Getenv("BACKEND")
 )
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,13 +32,14 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	defer childspan.End()
 
 	// create request for backend call
-	req, err := http.NewRequest("GET", "http://localhost:8080", nil)
+	req, err := http.NewRequest("GET", backendAddr, nil)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 	childCtx, cancel := context.WithTimeout(req.Context(), 1000*time.Millisecond)
 	defer cancel()
 	req = req.WithContext(childCtx)
+
 	// add span context to backend call and make request
 	format := &tracecontext.HTTPFormat{}
 	format.SpanContextToRequest(rootspan.SpanContext(), req)
