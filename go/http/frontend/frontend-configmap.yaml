@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-configmap
+  namespace: default
+  selfLink: /api/v1/namespaces/default/configmaps/frontend-configmap
+data:
+  PROJECT_ID: "thegrinch-project"
+  LOCATION: "us-west1"
+  BACKEND: "http://34.83.193.8:8080"
