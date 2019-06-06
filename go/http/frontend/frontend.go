@@ -71,7 +71,6 @@ func main() {
 	handler = &ochttp.Handler{
 		Handler:     handler,
 		Propagation: &tracecontext.HTTPFormat{}}
-	// Propagation: &b3.HTTPFormat{}}
 
 	log.Fatal(http.ListenAndServe(":8081", handler))
 }

@@ -24,7 +24,7 @@ var (
 )
 
 // make an outbound call
-func callGoogle() string {
+func callRemoteEndpoint() string {
 	resp, err := http.Get(destURL)
 	if err != nil {
 		log.Fatal("could not fetch remote endpoint")
@@ -47,7 +47,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	if spanContext, ok := HTTPFormat.SpanContextFromRequest(r); ok {
 		_, span := trace.StartSpanWithRemoteParent(ctx, "call remote endpoint", spanContext)
 		defer span.End()
-		returnCode := callGoogle()
+		returnCode := callRemoteEndpoint()
 		fmt.Fprintf(w, returnCode)
 	}
 }
