@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-configmap
+  namespace: default
+  selfLink: /api/v1/namespaces/default/configmaps/backend-config
+data:
+  PROJECT_ID: "thegrinch-project"
+  LOCATION: "us-west1"
+  DESTINATION_URL: "https://www.google.com"
