@@ -5,6 +5,6 @@ metadata:
   namespace: default
   selfLink: /api/v1/namespaces/default/configmaps/frontend-configmap
 data:
-  PROJECT_ID: "thegrinch-project"
+  PROJECT_ID: "$PROJECT_ID"
   LOCATION: "us-west1"
   BACKEND: "http://34.83.193.8:8080"
