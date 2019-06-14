@@ -5,6 +5,6 @@ metadata:
   namespace: default
   selfLink: /api/v1/namespaces/default/configmaps/backend-config
 data:
-  PROJECT_ID: "PROJECT_ID"
+  PROJECT_ID: "$PROJECT_ID"
   LOCATION: "us-west1"
   DESTINATION_URL: "https://www.google.com"
