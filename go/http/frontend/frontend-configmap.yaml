@@ -7,4 +7,4 @@ metadata:
 data:
   PROJECT_ID: "$PROJECT_ID"
   LOCATION: "us-west1"
-  BACKEND: "http://34.83.193.8:8080"
+  BACKEND: "http://$BACKEND_IP:8080"
