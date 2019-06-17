@@ -29,7 +29,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	defer rootspan.End()
 
 	// create child span for backend call
-	_, childspan := trace.StartSpan(ctx, "call to backend")
+	ctx, childspan := trace.StartSpan(ctx, "call to backend")
 	defer childspan.End()
 
 	// create request for backend call
