@@ -44,7 +44,8 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 	// add span context to backend call and make request
 	format := &tracecontext.HTTPFormat{}
-	format.SpanContextToRequest(rootspan.SpanContext(), req)
+	format.SpanContextToRequest(childspan.SpanContext(), req)
+	//format.SpanContextToRequest(rootspan.SpanContext(), req)
 	client := http.DefaultClient
 	res, err := client.Do(req)
 	if err != nil {
