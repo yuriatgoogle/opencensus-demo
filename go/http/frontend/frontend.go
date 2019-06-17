@@ -37,7 +37,8 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	childCtx, cancel := context.WithTimeout(req.Context(), 1000*time.Millisecond)
+
+	childCtx, cancel := context.WithTimeout(ctx, 1000*time.Millisecond)
 	defer cancel()
 	req = req.WithContext(childCtx)
 
