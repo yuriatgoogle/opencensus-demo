@@ -15,11 +15,12 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	trace "go.opencensus.io/trace"
@@ -32,25 +33,8 @@ import (
 
 var (
 	projectID = os.Getenv("PROJECT_ID")
-	destURL   = os.Getenv("DESTINATION_URL")
 	location  = os.Getenv("LOCATION")
 )
-
-// make an outbound call
-func callRemoteEndpoint() string {
-	resp, err := http.Get(destURL)
-	if err != nil {
-		log.Fatal("could not fetch remote endpoint")
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal("could not read response from Google")
-		log.Fatal(body)
-	}
-
-	return strconv.Itoa(resp.StatusCode)
-}
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	// get context from incoming request
@@ -58,10 +42,21 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	// get span context from incoming request
 	HTTPFormat := &tracecontext.HTTPFormat{}
 	if spanContext, ok := HTTPFormat.SpanContextFromRequest(r); ok {
-		_, span := trace.StartSpanWithRemoteParent(ctx, "call remote endpoint", spanContext)
+		_, span := trace.StartSpanWithRemoteParent(ctx, "execute backend logic", spanContext)
 		defer span.End()
-		returnCode := callRemoteEndpoint()
-		fmt.Fprintf(w, returnCode)
+		// generate a random 0-10 int and sleep for that many seconds
+		r := rand.Int63n(10)
+		s := strconv.FormatInt(int64(r), 10) // for output and logging
+		time.Sleep(time.Duration(r) * time.Second)
+		fmt.Println("slept for " + s + " seconds")
+		fmt.Fprintf(w, "slept for "+s+" seconds")
+	} else {
+		fmt.Println("did not get context")
+		r := rand.Int63n(10)
+		s := strconv.FormatInt(int64(r), 10) // for output and logging
+		time.Sleep(time.Duration(r) * time.Second)
+		fmt.Println("slept for " + s + " seconds")
+		fmt.Fprintf(w, "slept for "+s+" seconds")
 	}
 }
 
@@ -80,7 +75,6 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", mainHandler)
 	var handler http.Handler = r
-	// handler = &logHandler{log: log, next: handler}
 
 	handler = &ochttp.Handler{
 		Handler:     handler,
