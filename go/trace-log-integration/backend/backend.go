@@ -24,6 +24,7 @@ import (
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	trace "go.opencensus.io/trace"
+	logs "github.com/GoogleCloudPlatform/opencensus-spanner-demo/applog"
 
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
@@ -50,6 +51,10 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(time.Duration(r) * time.Second)
 		fmt.Println("slept for " + s + " seconds")
 		fmt.Fprintf(w, "slept for "+s+" seconds")
+
+		// create log entry with trace ID
+		logs.Printf(ctx, "testing logging")
+
 	} else {
 		fmt.Println("did not get context")
 		r := rand.Int63n(10)
@@ -57,6 +62,9 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(time.Duration(r) * time.Second)
 		fmt.Println("slept for " + s + " seconds")
 		fmt.Fprintf(w, "slept for "+s+" seconds")
+
+				// create log entry with trace ID
+		logs.Printf(ctx, "testing logging")
 	}
 }
 
