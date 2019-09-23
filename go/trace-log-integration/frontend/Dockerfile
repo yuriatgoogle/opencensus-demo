@@ -15,7 +15,7 @@
 FROM golang:1.12
 
 # Set the Current Working Directory inside the container
-WORKDIR $GOPATH/src/github.com/yuriatgoogle/opencensus-demo/go/http
+WORKDIR $GOPATH/src/github.com/yuriatgoogle/opencensus-demo/go/trace-log-integration
 
 # Copy everything from the current directory to the PWD(Present Working Directory) inside the container
 COPY . .

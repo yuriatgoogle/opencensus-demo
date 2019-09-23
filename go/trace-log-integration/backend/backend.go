@@ -24,7 +24,8 @@ import (
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	trace "go.opencensus.io/trace"
-	logs "github.com/GoogleCloudPlatform/opencensus-spanner-demo/applog"
+	"cloud.google.com/go/logging"
+	logs "github.com/GoogleCloudPlatform/oc-spannerlab/applog"
 
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
@@ -35,7 +36,9 @@ import (
 var (
 	projectID = os.Getenv("PROJECT_ID")
 	location  = os.Getenv("LOCATION")
+	client    *logging.Client
 )
+
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	// get context from incoming request
@@ -49,24 +52,13 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		r := rand.Int63n(10)
 		s := strconv.FormatInt(int64(r), 10) // for output and logging
 		time.Sleep(time.Duration(r) * time.Second)
-		fmt.Println("slept for " + s + " seconds")
-		fmt.Fprintf(w, "slept for "+s+" seconds")
+		fmt.Println("slept for " + s + " seconds") // to console
+		fmt.Fprintf(w, "slept for "+s+" seconds")  // to client/browser
 
 		// create log entry with trace ID
-		logs.Printf(ctx, "testing logging")
-
-	} else {
-		fmt.Println("did not get context")
-		r := rand.Int63n(10)
-		s := strconv.FormatInt(int64(r), 10) // for output and logging
-		time.Sleep(time.Duration(r) * time.Second)
-		fmt.Println("slept for " + s + " seconds")
-		fmt.Fprintf(w, "slept for "+s+" seconds")
-
-				// create log entry with trace ID
-		logs.Printf(ctx, "testing logging")
-	}
-}
+		logs.Printf(ctx, "testing logging - with context", s)
+	} 
+} // end mainHandler
 
 func main() {
 	// set up Stackdriver exporter
@@ -78,6 +70,10 @@ func main() {
 	trace.ApplyConfig(trace.Config{
 		DefaultSampler: trace.AlwaysSample(),
 	})
+
+	// set up logging
+	logs.Initialize(projectID)
+	defer logs.Close()
 
 	// handle incoming request
 	r := mux.NewRouter()
