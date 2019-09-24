@@ -25,7 +25,7 @@ import (
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	trace "go.opencensus.io/trace"
 	"cloud.google.com/go/logging"
-	logs "github.com/GoogleCloudPlatform/oc-spannerlab/applog"
+	logs "github.com/GoogleCloudPlatform/opencensus-spanner-demo/applog"
 
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
@@ -55,8 +55,9 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("slept for " + s + " seconds") // to console
 		fmt.Fprintf(w, "slept for "+s+" seconds")  // to client/browser
 
+		c:=trace.NewContext(ctx, span)
 		// create log entry with trace ID
-		logs.Printf(ctx, "testing logging - with context", s)
+		logs.Printf(c, "testing logging - with context", s)
 	} 
 } // end mainHandler
 
