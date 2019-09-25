@@ -22,10 +22,10 @@ import (
 	"strconv"
 	"time"
 
-	"contrib.go.opencensus.io/exporter/stackdriver"
-	trace "go.opencensus.io/trace"
 	"cloud.google.com/go/logging"
+	"contrib.go.opencensus.io/exporter/stackdriver"
 	logs "github.com/GoogleCloudPlatform/opencensus-spanner-demo/applog"
+	trace "go.opencensus.io/trace"
 
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/plugin/ochttp/propagation/tracecontext"
@@ -39,15 +39,16 @@ var (
 	client    *logging.Client
 )
 
-
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	// get context from incoming request
 	ctx := r.Context()
 	// get span context from incoming request
 	HTTPFormat := &tracecontext.HTTPFormat{}
 	if spanContext, ok := HTTPFormat.SpanContextFromRequest(r); ok {
+		// create new span
 		_, span := trace.StartSpanWithRemoteParent(ctx, "execute backend logic", spanContext)
 		defer span.End()
+
 		// generate a random 0-10 int and sleep for that many seconds
 		r := rand.Int63n(10)
 		s := strconv.FormatInt(int64(r), 10) // for output and logging
@@ -55,10 +56,12 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("slept for " + s + " seconds") // to console
 		fmt.Fprintf(w, "slept for "+s+" seconds")  // to client/browser
 
-		c:=trace.NewContext(ctx, span)
+		// create a new context using the span and request context
+		c := trace.NewContext(ctx, span)
+
 		// create log entry with trace ID
-		logs.Printf(c, "testing logging - with context", s)
-	} 
+		logs.Printf(c, "The backend process took "+s+"seconds", s)
+	}
 } // end mainHandler
 
 func main() {
