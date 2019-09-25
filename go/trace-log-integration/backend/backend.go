@@ -60,7 +60,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		c := trace.NewContext(ctx, span)
 
 		// create log entry with trace ID
-		logs.Printf(c, "The backend process took "+s+"seconds", s)
+		logs.Printf(c, "The backend process took "+s+"seconds")
 	}
 } // end mainHandler
 
