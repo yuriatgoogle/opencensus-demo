@@ -26,8 +26,8 @@ RUN go get -d -v ./...
 # Install the packages
 RUN go install -v ./...
 
-# This container exposes port 8081 to the outside world
+# This container exposes port 8080 to the outside world
 EXPOSE 8080
 
 # Run the executable
-CMD ["go", "run", "helloworld.go"]
+CMD ["go", "run", "oc-istio.go"]
