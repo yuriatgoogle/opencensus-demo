@@ -25,7 +25,9 @@ spec:
   http:
   - match:
     - uri:
-        exact: /hello
+        prefix: "/hello"
+    rewrite:
+        uri: /
     route:
     - destination:
         host: oc-istio
