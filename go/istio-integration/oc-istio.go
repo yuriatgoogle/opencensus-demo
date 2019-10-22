@@ -17,8 +17,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
 
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	"go.opencensus.io/trace"
@@ -39,10 +42,28 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, rootspan := trace.StartSpan(context.Background(), "incoming call")
 	defer rootspan.End()
 
+	// get span context from incoming request
+	HTTPFormat := &tracecontext.HTTPFormat{}
+	if spanContext, ok := HTTPFormat.SpanContextFromRequest(r); ok {
+		// log to console
+		fmt.Println("got incoming context")
+		// create new span
+		_, span := trace.StartSpanWithRemoteParent(ctx, "main logic", spanContext)
+		defer span.End()
+
+		// generate a random 0-2 int and sleep for that many seconds
+		r := rand.Int63n(2)
+		s := strconv.FormatInt(int64(r), 10) // for output and logging
+		time.Sleep(time.Duration(r) * time.Second)
+		fmt.Println("slept for " + s + " seconds") // to console
+		fmt.Fprintf(w, "slept for "+s+" seconds")  // to client/browser
+
+	}
+
 	// do something with the context
 	ctx.Done()
 	// log basic output
-	fmt.Printf("logging output\n")
+	fmt.Printf("did not get context\n")
 	// return basic output
 	fmt.Fprintf(w, "hello world \n", r.URL.Path)
 
