@@ -13,6 +13,7 @@ limitations under the License.
 
 package main
 
+// [START imports]
 import (
 	"context"
 	"fmt"
@@ -30,12 +31,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// [END imports]
 var (
 	projectID   = os.Getenv("PROJECT_ID")
 	backendAddr = os.Getenv("BACKEND")
 	location    = os.Getenv("LOCATION")
 )
 
+// [START mainHandler]
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	// create root span
 	ctx, rootspan := trace.StartSpan(context.Background(), "incoming call")
@@ -58,7 +61,6 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	// add span context to backend call and make request
 	format := &tracecontext.HTTPFormat{}
 	format.SpanContextToRequest(childspan.SpanContext(), req)
-	//format.SpanContextToRequest(rootspan.SpanContext(), req)
 	client := http.DefaultClient
 	res, err := client.Do(req)
 	if err != nil {
@@ -68,6 +70,8 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("%v\n", res.StatusCode)
 }
 
+// [END mainHandler]
+// [START mainFunction]
 func main() {
 	// set up Stackdriver exporter
 	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID, Location: location})
@@ -89,3 +93,5 @@ func main() {
 
 	log.Fatal(http.ListenAndServe(":8081", handler))
 }
+
+// [END mainFunction]

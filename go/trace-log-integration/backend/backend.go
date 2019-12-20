@@ -13,6 +13,7 @@ limitations under the License.
 
 package main
 
+// [START imports]
 import (
 	"fmt"
 	"log"
@@ -33,12 +34,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// [END imports]
+
 var (
 	projectID = os.Getenv("PROJECT_ID")
 	location  = os.Getenv("LOCATION")
 	client    *logging.Client
 )
 
+// [START mainHandler]
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	// get context from incoming request
 	ctx := r.Context()
@@ -54,7 +58,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		s := strconv.FormatInt(int64(r), 10) // for output and logging
 		time.Sleep(time.Duration(r) * time.Second)
 		fmt.Println("slept for " + s + " seconds") // to console
-		fmt.Fprintf(w, "slept for "+s+" seconds")  // to client/browser
+		fmt.Fprintf(w, s)                          // to client/browser
 
 		// create a new context using the span and request context
 		c := trace.NewContext(ctx, span)
@@ -62,8 +66,10 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		// create log entry with trace ID
 		logs.Printf(c, "The backend process took "+s+" seconds")
 	}
-} // end mainHandler
+}
 
+// [END mainHandler]
+// [START mainFunction]
 func main() {
 	// set up Stackdriver exporter
 	exporter, err := stackdriver.NewExporter(stackdriver.Options{ProjectID: projectID, Location: location})
@@ -90,3 +96,5 @@ func main() {
 
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }
+
+// [END mainFunction]
