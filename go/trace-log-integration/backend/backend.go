@@ -54,17 +54,17 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		defer span.End()
 
 		// generate a random 0-10 int and sleep for that many seconds
-		r := rand.Int63n(10)
-		s := strconv.FormatInt(int64(r), 10) // for output and logging
-		time.Sleep(time.Duration(r) * time.Second)
-		fmt.Println("slept for " + s + " seconds") // to console
-		fmt.Fprintf(w, s)                          // to client/browser
+		rand.Seed(time.Now().UnixNano())
+		n := rand.Intn(10) // n will be between 0 and 10
+		time.Sleep(time.Duration(n) * time.Second)
+		fmt.Printf("Slept for %d seconds...\n", n)      // to console
+		fmt.Fprintf(w, strconv.FormatInt(int64(n), 10)) // to client/browser
 
 		// create a new context using the span and request context
 		c := trace.NewContext(ctx, span)
 
 		// create log entry with trace ID
-		logs.Printf(c, "The backend process took "+s+" seconds")
+		logs.Printf(c, "The backend process took %d seconds\n", n)
 	}
 }
 
